@@ -11,21 +11,22 @@ class AuthRepository {
 
   Future<void> signIn(String email, String password) async {
     // TODO-F03: Login Email/Password. Biarkan exception ditangani UI.
-    throw UnimplementedError('TODO-F03: hubungkan login ke Firebase Auth.');
+    await auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
   Stream<User?> watchSession() {
     // TODO-F04: Dengarkan perubahan sesi; jangan simpan status login sendiri.
-    throw UnimplementedError('TODO-F04: dengarkan sesi Firebase Auth.');
+    return auth.authStateChanges();
   }
 
   String get studentName {
     // TODO-F04: Gunakan displayName, lalu email sebelum @, lalu "Siswi".
-    return 'Siswi';
+    final user = auth.currentUser;
+    return user?.displayName ?? user?.email?.split('@').first ?? 'Siswi';
   }
 
   Future<void> signOut() async {
     // TODO-F05: Keluar dari Firebase Auth, bukan hanya pindah halaman.
-    throw UnimplementedError('TODO-F05: tutup sesi Firebase Auth.');
+    await auth.signOut();
   }
 }

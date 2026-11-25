@@ -2,8 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     function owner(uid) {
-      // TODO-F06a: hanya akun login dengan UID yang sama.
-      return false;
+      # TODO-F06a: hanya akun login dengan UID yang sama.
+      return request.auth != null && request.auth.uid == uid;
     }
     function guardPath(uid) {
       return /databases/$(database)/documents/students/$(uid)/guards/daily;
@@ -13,12 +13,11 @@ service cloud.firestore {
     }
     function day(time) { return int((time.toMillis() + 25200000) / 86400000); }
     function fresh(uid) {
-      // TODO-F06b: guard belum ada, atau harinya lebih lama dari request.time (WIB).
-      return false;
+      # TODO-F06b: guard belum ada, atau harinya lebih lama dari request.time (WIB).
+      return !exists(guardPath(uid)) || day(get(guardPath(uid)).data.lastAt < day(request.time))
     }
     function linked(uid, id) {
-      // TODO-F06c: hasil batch harus menghubungkan guard, waktu server, dan ID record.
-      return false;
+      return getAfter(guardPath(uid)).data.lastAt == request.time && getAfter(guardPath(uid)).data.recordId == id
     }
     match /students/{uid}/profile/{photo} {
       allow read: if owner(uid);
